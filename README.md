@@ -1,4 +1,4 @@
-# 🗳️ Online Voting System
+# 🗳️ Online Voting System for Elections
 
 A secure, transparent, and user-friendly **Online Voting Platform** built using **Python (Flask Framework)**.  
 This project aims to modernize traditional voting by enabling **digital participation** while ensuring **security, integrity, and accessibility** for all users.

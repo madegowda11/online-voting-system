@@ -3,15 +3,42 @@ import threading
 import dframe as df
 from threading import Thread
 from dframe import *
+from AES import *
 
 lock = threading.Lock()
 
+# Fixed AES key (must match client)
+AES_KEY = [0x00, 0x01, 0x02, 0x03,
+           0x04, 0x05, 0x06, 0x07,
+           0x08, 0x09, 0x0a, 0x0b,
+           0x0c, 0x0d, 0x0e, 0x0f]
+
+aes = AES()  # Initialize AES instance
+
+
+def encrypt_message(msg):
+    """Encrypts a plaintext message (string) using AES and returns bytes."""
+    msg_bytes = msg.encode('utf-8')[:16]                   # Truncate to 16 bytes
+    msg_block = list(msg_bytes) + [0] * (16 - len(msg_bytes))  # Zero pad if shorter
+    cipher_block = aes.encrypt(msg_block, AES_KEY)
+    return bytes(cipher_block)
+
+
+def decrypt_message(encrypted_bytes):
+    """Decrypts a received AES-encrypted message (bytes) and returns string."""
+    encrypted_list = list(encrypted_bytes[:16])             # Take 16-byte AES block
+    decrypted_list = aes.decrypt(encrypted_list, AES_KEY)
+    decrypted_str = bytes(decrypted_list).decode('utf-8', errors='ignore').rstrip('\x00')
+    return decrypted_str
+
+
+
 def client_thread(connection):
 
-    data = connection.recv(1024)     #receiving voter details            #2
+    encrypted_data = connection.recv(1024)
+    data_str = decrypt_message(encrypted_data)              # 🔓 Decrypt received data
+    log = data_str.split(' ')
 
-    #verify voter details
-    log = (data.decode()).split(' ')
     try:
         log[0] = int(log[0])
 
@@ -33,7 +60,8 @@ def client_thread(connection):
         return
 
 
-    data = connection.recv(1024)                                    #4 Get Vote
+    data = connection.recv(1024)
+    vote_str = decrypt_message(data)
     print("Vote Received from ID: "+str(log[0])+"  Processing...")
     lock.acquire()
     #update Database

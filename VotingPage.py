@@ -2,16 +2,37 @@ import tkinter as tk
 import socket
 from tkinter import *
 from PIL import ImageTk,Image
+from AES import *
 
 def voteCast(root,frame1,vote,client_socket):
 
     for widget in frame1.winfo_children():
         widget.destroy()
 
-    client_socket.send(vote.encode()) #4
+    # Encryption of vote casted using AES
+
+    aes = AES()
+    plaintext_str = vote
+    plaintext_bytes = plaintext_str.encode('utf-8')[:16]  # Take first 16 bytes
+    plaintext = list(plaintext_bytes) + [0] * (16 - len(plaintext_bytes))  # Pad with zeros if shorter
+    key = [0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f]  # Fixed key
+
+    ciphertext = aes.encrypt(plaintext, key)
+
+# Convert ciphertext list to bytes before sending
+    ciphertext_bytes = bytes(ciphertext)
+    client_socket.send(ciphertext_bytes) 
 
     message = client_socket.recv(1024) #Success message
-    print(message.decode()) #5
+
+     # Convert received bytes to list of ints for your AES decrypt method
+    encrypted_message_list = list(message[:16])  # AES block size = 16 bytes
+    decrypted_list = aes.decrypt(encrypted_message_list, key)
+
+    # Convert decrypted bytes back to string
+    decrypted_str = bytes(decrypted_list).decode('utf-8', errors='ignore').rstrip('\x00')
+
+    print("Decrypted server message:", repr(decrypted_str))
     message = message.decode()
     if(message=="Successful"):
         Label(frame1, text="Vote Casted Successfully", font=('Helvetica', 18, 'bold')).grid(row = 1, column = 1)

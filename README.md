@@ -170,7 +170,7 @@ We welcome contributions from **GSSoC contributors** and the open-source communi
    ```
 5. **Push** to your fork:
    ```bash
-   git push origin feature-name
+   git push origin feature/branch-name
    ```
 6. Open a **Pull Request (PR)** with:
    - Clear description of changes  

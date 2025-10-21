@@ -1,6 +1,6 @@
 # Code of Conduct
 
-Thank you for contributing to this project! We are committed to creating a friendly, safe, and welcoming environment for everyone.
+Thank you for contributing to this project (online-voting-system)! We are committed to creating a friendly, safe, and welcoming environment for everyone.
 
 ## Our Pledge
 
